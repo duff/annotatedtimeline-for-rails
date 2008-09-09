@@ -8,7 +8,7 @@ module AnnotatedTimeline
       html += "function drawChart(){"  
     	html += "var data = new google.visualization.DataTable(); \n"
   		html += google_graph_data(daily_counts_by_type)
-  		html += "var chart = new google.visualization.AnnotatedTimeLine($(\'#{element}\')); \n"
+  		html += "var chart = new google.visualization.AnnotatedTimeLine(document.getElementById(\'#{element}\')); \n"
   		html += "chart.draw(data"   
 		
 
@@ -27,7 +27,7 @@ module AnnotatedTimeline
   		html += "); } \n"		
   		html += "</script>"
   		html +=	"<div id=\"#{element}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"
-  
+      html
   end
 
   def google_graph_data(daily_counts_by_type)
