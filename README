@@ -1,20 +1,23 @@
 AnnotatedTimeline
 =================
 
+AnnotatedTimeline is a Rails plugin that wraps up the for the Annotated Timeline widget from the Google Visualization API (http://code.google.com/apis/visualization/documentation/gallery/annotatedtimeline.html)
+
+=== Usage: 
+
+In your controller:
+@data = {
+	1.day.ago => { :foo=>123, :bar=>100 },
+	2.day.ago => { :foo=>345, :bar=>200 }	
+}
+
 In the view:
-	<%= annotated_timeline(daily_counts_by_type, width, height, 'div-name', options) %>
+<%= annotated_timeline @data, width, height, 'div-name', options %>
 
-daily_counts_by_type should look like:
-	{Datetime1 => { :foo=>123, :bar=>100}, Datetime2 => { :foo=>736, :bar=>423}, Datetime3 => { :foo=>412, :bar=>678 } }
-This will graph foo versus bar over time.
-
-***Google Visualization API Doc: http://code.google.com/apis/visualization/documentation/gallery/annotatedtimeline.html
-***Note that at the moment, annotations are not supported.
+This will create a graph of "foo" & "bar" vs time.  It will be placed in a div with ID 'div-name'.
 
 
-
-Options
-=======
+=== Options
 
 :colors (array of strings) The colors to use to override the default google color scheme for the chart lines and labels. Each element is a string in a valid HTML color format. For example 'red' or '#00cc00'. 
 
@@ -31,12 +34,16 @@ Options
 :zoomEndTime (datetime) -  If specified, sets the end time of the selected zoom range. 
 
 
+=== Currently Unsupported options:
+* :allowHtml
+* :annotationsWidth
+* :displayAnnotations
+* :displayAnnotationsFilter
 
 
+===License:
 
-Annotations *not supported at the moment*
-===========
-:allowHtml
-:annotationsWidth
-:displayAnnotations
-:displayAnnotationsFilter
+* MIT License
+
+
+(C) Mobile Commons 2008
