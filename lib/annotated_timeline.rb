@@ -12,12 +12,12 @@ module AnnotatedTimeline
     html += "chart.draw(data"   
 
 
-    if options[:zoomEndTime]
-        options[:zoomEndTime] = "new Date(#{options[:zoomEndTime].year}, #{options[:zoomEndTime].month-1}, #{options[:zoomEndTime].day})"
+    if options[:zoomEndDate]
+        options[:zoomEndDate] = "new Date(#{options[:zoomEndDate].year}, #{options[:zoomEndDate].month-1}, #{options[:zoomEndDate].day})"
     end
     
-    if options[:zoomStartTime]
-        options[:zoomStartTime] = "new Date(#{options[:zoomStartTime].year}, #{options[:zoomStartTime].month-1}, #{options[:zoomStartTime].day})"
+    if options[:zoomStartDate]
+        options[:zoomStartDate] = "new Date(#{options[:zoomStartDate].year}, #{options[:zoomStartDate].month-1}, #{options[:zoomStartDate].day})"
     end
     
     if options[:colors]

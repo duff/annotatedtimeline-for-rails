@@ -17,6 +17,8 @@ In the view:
 This will create a graph of "foo" & "bar" vs time.  It will be placed in a div with ID 'div-name'.
 
 
+=== Annotations
+
 === Options
 
 :colors (array of strings) The colors to use to override the default google color scheme for the chart lines and labels. Each element is a string in a valid HTML color format. For example 'red' or '#00cc00'. 
@@ -29,17 +31,17 @@ This will create a graph of "foo" & "bar" vs time.  It will be placed in a div w
 
 :wmode (string) - 'opaque'(default), 'window' or 'transparent'. the Window Mode (wmode) parameter for the Flash chart. 
 
-:zoomStartTime (datetime) -  	If specified, sets the start time of the selected zoom range. 
+:zoomStartDate (date) -  	If specified, sets the start date of the selected zoom range. 
 
-:zoomEndTime (datetime) -  If specified, sets the end time of the selected zoom range. 
+:zoomEndDate (date) -  If specified, sets the end date of the selected zoom range.
+
+:displayAnnotationsFilter (boolean) - If set true, a search box appears at the top of the annotations column that will filter the annotations according to its contents. Defaults to false.
+
+:annotationsWidth (number) - If specified, sets the percentage of the width of the display that the annotations column takes up. Defaults to 25, must be between 5 and 80. 
 
 
 === Currently Unsupported options:
 * :allowHtml
-* :annotationsWidth
-* :displayAnnotations
-* :displayAnnotationsFilter
-
 
 ===License:
 
