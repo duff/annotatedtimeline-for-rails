@@ -23,7 +23,7 @@ module AnnotatedTimeline
   	options[:displayAnnotations] = true if options[:annotations]
     
     #enclose everything that google plugin expects to see as a string in javascript with escaped quotes
-    options.each{|k,v| options[k] = "\"#{v}\"" if v.class==String && k!=:zoomStartTime && k!=:zoomEndTime }
+    options.each{|k,v| options[k] = "\"#{v}\"" if v.class==String && ![:zoomStartTime, :zoomEndTime, :colors, :scaleColumns].include?(k) }
 
     #set up array to get sent to options hash in javascript - which doesn't get sent the annotations hash
     array = options.delete_if{|k,v| k == :annotations}.map{|key,val| key.to_s + ": " + val.to_s}
