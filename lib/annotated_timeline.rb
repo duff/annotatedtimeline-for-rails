@@ -55,8 +55,14 @@ module AnnotatedTimeline
       		if options[:annotations].keys.include?(type.to_sym)
       		    html+="data.addColumn('string', '#{type.to_s.titleize}_annotation_title');\n"
       		    column_index[num+=1] = (type.to_s + "_annotation_title").to_sym
-      		    options[:annotations][type.to_sym].each do |date,txt|
-      		        daily_counts_by_type[date][(type.to_s + "_annotation_title").to_sym] = "\"#{txt}\""
+      		    
+      		    html+="data.addColumn('string', '#{type.to_s.titleize}_annotation_text');\n"
+      		    column_index[num+=1] = (type.to_s + "_annotation_text").to_sym
+      		    
+      		    
+      		    options[:annotations][type.to_sym].each do |date,array|
+      		        daily_counts_by_type[date][(type.to_s + "_annotation_title").to_sym] = "\"#{array[0]}\""
+      		        daily_counts_by_type[date][(type.to_s + "_annotation_text").to_sym] = "\"#{array[1]}\"" if array[1]
       		    end
     	    end
 	    end
