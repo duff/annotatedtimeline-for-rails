@@ -19,6 +19,7 @@ module AnnotatedTimeline
     end
     
     options[:colors] = "#{options[:colors].inspect}" if options[:colors]
+    options[:scaleColumns] = "#{options[:scaleColumns].inspect}" if options[:scaleColumns]
 
   	options[:displayAnnotations] = true if options[:annotations]
     
