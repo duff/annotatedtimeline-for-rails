@@ -11,27 +11,24 @@ module AnnotatedTimeline
     html += "var chart = new google.visualization.AnnotatedTimeLine(document.getElementById(\'#{element}\')); \n"
     html += "chart.draw(data"   
 
-
-    if options[:zoomEndDate]
-        options[:zoomEndDate] = "new Date(#{options[:zoomEndDate].year}, #{options[:zoomEndDate].month-1}, #{options[:zoomEndDate].day})"
+    if options[:zoomEndTime]
+        options[:zoomEndTime] = "new Date(#{options[:zoomEndTime].year}, #{options[:zoomEndTime].month-1}, #{options[:zoomEndTime].day})"
+    end
+    if options[:zoomStartTime]
+        options[:zoomStartTime] = "new Date(#{options[:zoomStartTime].year}, #{options[:zoomStartTime].month-1}, #{options[:zoomStartTime].day})"
     end
     
-    if options[:zoomStartDate]
-        options[:zoomStartDate] = "new Date(#{options[:zoomStartDate].year}, #{options[:zoomStartDate].month-1}, #{options[:zoomStartDate].day})"
-    end
-    
-    if options[:colors]
-        options[:colors] = "#{options[:colors].inspect}"
-    end
-  	
-  	if options[:annotations]
-  	    options[:displayAnnotations] = true
-    end
-  	
+    options[:colors] = "#{options[:colors].inspect}" if options[:colors]
 
+  	options[:displayAnnotations] = true if options[:annotations]
+    
+    #enclose everything that google plugin expects to see as a string in javascript with escaped quotes
+    options.each{|k,v| options[k] = "\"#{v}\"" if v.class==String && k!=:zoomStartTime && k!=:zoomEndTime }
+
+    #set up array to get sent to options hash in javascript - which doesn't get sent the annotations hash
     array = options.delete_if{|k,v| k == :annotations}.map{|key,val| key.to_s + ": " + val.to_s}
+        
     html += (", {" + array.join(", ") + "}") unless array.empty?
-
     html += "); } \n"		
     html += "</script>"
     html +=	"<div id=\"#{element}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"
@@ -58,7 +55,6 @@ module AnnotatedTimeline
       		    
       		    html+="data.addColumn('string', '#{type.to_s.titleize}_annotation_text');\n"
       		    column_index[num+=1] = (type.to_s + "_annotation_text").to_sym
-      		    
       		    
       		    options[:annotations][type.to_sym].each do |date,array|
       		        daily_counts_by_type[date][(type.to_s + "_annotation_title").to_sym] = "\"#{array[0]}\""
