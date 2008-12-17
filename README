@@ -14,7 +14,17 @@ In your controller:
 }
 
 In the view:
-<%= annotated_timeline @data, width, height, 'div-name', options %>
+
+<%= inline_annotated_timeline @data, width, height, 'div_id_to_create', options %>
+
+OR
+
+<%= annotated_timeline @data, 'div-id', options %>
+...
+<div id='div-id' style='width: 600px; height: 400px'></div>
+
+
+Using inline_annotated_timeline inserts the graph where you put it, whereas annotated_timeline requires you to make the <div> where you want the graph and allows you to manipulate the div more.
 
 This will create a graph of "foo" & "bar" vs time.  It will be placed in a div with ID 'div-name'.
 
