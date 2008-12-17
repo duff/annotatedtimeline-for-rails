@@ -1,14 +1,18 @@
 module AnnotatedTimeline 
+    
+  def inline_annotated_timeline(daily_counts_by_type, width = 750, height = 300, div_id_to_create = 'graph', options = {})
+    html = annotated_timeline(daily_counts_by_type, div_id_to_create, options)
+    html +=	"<div id=\"#{div_id_to_create}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"    
+  end
 
-  def annotated_timeline(daily_counts_by_type, width = 750, height = 300, element = 'graph', options = {})
-  
+  def annotated_timeline(daily_counts_by_type, div_id = 'graph', options = {})
     html = "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>\n<script type=\"text/javascript\"> \n"
     html += "google.load(\"visualization\", \"1\", {packages:[\"annotatedtimeline\"]}); \n"  
     html += "google.setOnLoadCallback(drawChart);"    
     html += "function drawChart(){"  
     html += "var data = new google.visualization.DataTable(); \n"
     html += google_graph_data(daily_counts_by_type, options)
-    html += "var chart = new google.visualization.AnnotatedTimeLine(document.getElementById(\'#{element}\')); \n"
+    html += "var chart = new google.visualization.AnnotatedTimeLine(document.getElementById(\'#{div_id}\')); \n"
     html += "chart.draw(data"   
 
     if options[:zoomEndTime]
@@ -32,9 +36,6 @@ module AnnotatedTimeline
     html += (", {" + array.join(", ") + "}") unless array.empty?
     html += "); } \n"		
     html += "</script>"
-    html +=	"<div id=\"#{element}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"
-    html
-
   end
 
   def google_graph_data(daily_counts_by_type, options)
