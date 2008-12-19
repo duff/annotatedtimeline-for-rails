@@ -13,6 +13,8 @@ In your controller:
 	2.day.ago.to_date => { :foo=>345, :bar=>200 }	
 }
 
+Note that using Time objects *may* work if you don't use annotations, however this plugin is only spec'd for Date objects.
+
 In the view:
 
 <%= inline_annotated_timeline @data, width, height, 'div_id_to_create', options %>
