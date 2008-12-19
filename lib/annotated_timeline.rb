@@ -35,7 +35,7 @@ module AnnotatedTimeline
 
     google_graph_html = google_graph_data(daily_counts_by_type, options)
 
-    google_options = escape_options_for_javascript(options)
+    google_options = format_options_for_javascript(options)
     data_args = google_options.any? ? "data, {#{google_options.join(", ")}}" : "data"
     
     html = "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script><script type=\"text/javascript\">
@@ -56,42 +56,25 @@ private
     "new Date(#{time.year}, #{time.month-1}, #{time.day})"
   end
 
-  def ruby_array_to_js_array(array)
-    array.inspect #this will turn %w[red blue] into [\"red\", \"blue\"] which is what we want
-  end
-  
-  def ruby_string_to_js_string(string)
-    string.inspect #this turns 'red' into '\"red\"'
-  end
-  
   def ruby_hash_to_js_hash(hash)
     hash.map{|key,val| "#{key}: #{val}"}
   end
   
-  def escape_options_for_javascript(options)
-    if options[:zoomEndTime]
-      options[:zoomEndTime] = ruby_time_to_js_time(options[:zoomEndTime]) 
-    end
-    if options[:zoomStartTime]
-      options[:zoomStartTime] = ruby_time_to_js_time(options[:zoomStartTime]) 
-    end
-    if (options[:colors] && options[:colors].any?)
-      options[:colors] = ruby_array_to_js_array(options[:colors]) 
-    end
-    if (options[:scaleColumns] && options[:scaleColumns].any?)
-      options[:scaleColumns] = ruby_array_to_js_array(options[:scaleColumns]) 
-    end
-  	options[:displayAnnotations] = (options[:annotations] && options[:annotations].any?) #boolean
+  def format_options_for_javascript(options)
+   valid_options = {}
+   options.each do |k,v|
+     valid_options[k] = case v
+       when String, Array    then v.inspect   #this turns 'red' into '\"red\"' for strings and %w[red blue] into [\"red\", \"blue\"] for arrays 
+       when Date,Time        then ruby_time_to_js_time(v) 
+       else v       #leave bools and numbers as they are         
+      end
+   end 
     
-    #escape the string arguments (excluding the ones we just did)
-    already_escaped = [:zoomStartTime, :zoomEndTime, :colors, :scaleColumns]
-    options.reject{|k,v| already_escaped.include?(k) || v.class!=String }.each do |k,v| 
-      options[k] = ruby_string_to_js_string(v) 
-    end
-    
-    #annotations is passed in to the ruby function, but it's not actually sent to the JS method. 
-    #it gets turned into a boolean and sent as data to the draw() function, so just remove it 
-    valid_options = options.reject{|k,v| k == :annotations}
+    # a hash containing annotations is passed into the ruby options hash, keyed as :annotations. this hash
+    # doesn't get sent to the javascript function - javascript takes the annotations as data points. the js
+    # function does, however, require the boolean :displayAnnotations
+    options[:displayAnnotations] = (options[:annotations] && options[:annotations].any?)
+    valid_options.reject!{|k,v| k == :annotations}
     
     ruby_hash_to_js_hash valid_options 
   end
@@ -107,21 +90,18 @@ private
   		html+="data.addColumn('number', '#{type.titleize}');\n"
   		categories << type.to_sym
   		
-  		if options[:annotations]
-    		if options[:annotations].keys.include?(type.to_sym)
-  		    html+="data.addColumn('string', '#{type.titleize}_annotation_title');\n"
-  		    categories << "#{type}_annotation_title".to_sym
-  		    
-  		    html+="data.addColumn('string', '#{type.titleize}_annotation_text');\n"
-  		    categories << "#{type}_annotation_text".to_sym
-  		    
-  		    options[:annotations][type.to_sym].each do |date,array|
-		        daily_counts_by_type[date]["#{type}_annotation_title".to_sym] = "\"#{array[0]}\""
-		        daily_counts_by_type[date]["#{type}_annotation_text".to_sym] = "\"#{array[1]}\"" if array[1]
-  		    end
-  	    end
-	    end
-	    
+  		if options[:annotations] && options[:annotations].keys.include?(type.to_sym)
+  		  html+="data.addColumn('string', '#{type.titleize}_annotation_title');\n"
+		    categories << "#{type}_annotation_title".to_sym
+		    
+		    html+="data.addColumn('string', '#{type.titleize}_annotation_text');\n"
+		    categories << "#{type}_annotation_text".to_sym
+		    
+		    options[:annotations][type.to_sym].each do |date,array|
+	        daily_counts_by_type[date]["#{type}_annotation_title".to_sym] = "\"#{array[0]}\""
+	        daily_counts_by_type[date]["#{type}_annotation_text".to_sym] = "\"#{array[1]}\"" if array[1]
+		    end
+	    end    
   	end    
     
     #The script expects a constant telling it how many rows we're going to add
@@ -131,7 +111,6 @@ private
     html	
   end
 
-  #
   # Converts this:
   # { :Date1=>{:type1=>9, :type2=>9},
   #   :Date2=>{:type1=>9, :type3=>9} }
