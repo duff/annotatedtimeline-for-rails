@@ -9,8 +9,8 @@ Last Update: 17 Dec 2008
 
 In your controller:
 @data = {
-	1.day.ago => { :foo=>123, :bar=>100 },
-	2.day.ago => { :foo=>345, :bar=>200 }	
+	1.day.ago.to_date => { :foo=>123, :bar=>100 },
+	2.day.ago.to_date => { :foo=>345, :bar=>200 }	
 }
 
 In the view:
@@ -33,8 +33,8 @@ This will create a graph of "foo" & "bar" vs time.  It will be placed in a div w
 In your controller:
 
 @annotations = {
-	:foo => { 1.day.ago => ["yesterday", "all my troubles seemed so far away"]}
-	:bar => { 1.day.ago => ["last tuesday"], 2.days.ago => ["last monday"]}
+	:foo => { 1.day.ago.to_date => ["yesterday", "all my troubles seemed so far away"]}
+	:bar => { 1.day.ago.to_date => ["last tuesday"], 2.days.ago.to_date => ["last monday"]}
 }
 
 Sending arrays of strings with two elements will render the first element as the title and the second as the text, and sending a one element array will render just the title.

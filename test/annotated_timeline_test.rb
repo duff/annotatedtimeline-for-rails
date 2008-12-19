@@ -22,13 +22,13 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
                                   2.days.ago=>{:bar=>4}, 
                                   3.days.ago=>{:foo=>6, :bar=>2}, 
                                   4.days.ago=>{:foo=>9, :bar=>7}})
-
+  
     output2 = annotated_timeline({3.days.ago=>{:foo=>6, :bar=>2}, 
                                   Time.now =>{:foo=>7}, 
                                   2.days.ago=>{:bar=>4}, 
                                   1.days.ago=>{:foo=>6, :bar=>10}, 
                                   4.days.ago=>{:bar=>7, :foo=>9}})
-
+  
     assert_match(/data\.addColumn\('date', 'Date'\);/, output, "Should Make Date Column")
     assert_match(/data\.addColumn\('number', 'Bar'\);/, output, "Should Make Bar Column")
     assert_match(/data\.addColumn\('number', 'Foo'\);/, output, "Should Make Foo Column")
@@ -74,7 +74,7 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
     
     end_date_string = "zoomEndTime: new Date(#{Time.now.year}, #{Time.now.month-1}, #{Time.now.day})"
     assert_match(end_date_string, output, "should pass zoom end option")
-
+  
     assert_match(/min: 5/, output, "should pass min option")
     assert_match(/scaleType: \"maximize\"/, output, "should pass scale type options")
     assert_match(/colors: \[\"orange\", \"#AAAAAA\"\]/, output, "should pass colors")
@@ -82,32 +82,27 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
     start_date_string = "zoomStartTime: new Date(#{4.days.ago.year}, #{4.days.ago.month-1}, #{4.days.ago.day})"
     assert_match(start_date_string, output, "should pass zoom option")
   end
- 
-  def test_new_google_option_works
-    output = annotated_timeline({Date.today =>{:foo=>7, :bar=>9}, 
-                                1.days.ago.to_date=>{:foo=>6, :bar=>10}, 
-                                2.days.ago.to_date=>{:foo=>5, :bar=>4}   }, 
-                                'graph',
-                                 {:new_string_option  => "cake", 
-                                  :new_num_option    => 7,
-                                  :new_bool_option   => true,
-                                  :new_array_option  => [2,2],
-                                  :new_date_option   => Date.today,
-                                  :new_time_option   => Time.now})
-                                          
-    assert_match(/new_string_option: \"cake\"/, output, "should pass new string option")
-    assert_match(/new_num_option: 7/, output, "should pass new number option")                              
-    assert_match(/new_bool_option: true/, output, "should pass new bool option")
-    assert_match(/new_array_option: \[2, 2\]/, output, "should pass new array option")    
 
-    today_date_string = "new_date_option: new Date(#{Time.now.year}, #{Time.now.month-1}, #{Time.now.day})"
-    assert_match(today_date_string, output, "should pass new date option")
-    assert_match(today_date_string, output, "should pass new time option")                                 
-  end
   
   def test_annotations_inserted
     
+    annotation_hash = { :foo  =>  {4.days.ago.to_date=>["Step one", "cut a hole in the box"], 1.days.ago.to_date=>["Step three"]},
+                        :bar  =>  {3.days.ago.to_date=>["Step two", "put your junk in the box"]} }
+    
+    data_point_hash =  {3.days.ago.to_date  =>{:foo=>6, :bar=>2}, 
+                        Time.now.to_date   =>{:foo=>7}, 
+                        2.days.ago.to_date =>{:bar=>4}, 
+                        1.days.ago.to_date =>{:foo=>6, :bar=>10}, 
+                        4.days.ago.to_date =>{:bar=>7, :foo=>9}}
+    
+    output = annotated_timeline(data_point_hash,
+                                  'graph',
+                                  {:annotations  => annotation_hash})
+                                  
+    assert_match(/data\.addColumn\('string', 'Foo_annotation_title'\);/, output, "Should Make Foo Annotation Title Column")
+    assert_match(/data\.addColumn\('string', 'Foo_annotation_text'\);/,  output, "Should Make Foo Annotation Text Column")
+    assert_match(/data\.addColumn\('string', 'Bar_annotation_title'\);/, output, "Should Make Bar Annotation Title Column")
+    assert_match(/data\.addColumn\('string', 'Bar_annotation_text'\);/,  output, "Should Make Bar Annotation Text Column")                                  
   end
   
-
 end
