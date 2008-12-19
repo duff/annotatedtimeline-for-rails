@@ -102,7 +102,15 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
     assert_match(/data\.addColumn\('string', 'Foo_annotation_title'\);/, output, "Should Make Foo Annotation Title Column")
     assert_match(/data\.addColumn\('string', 'Foo_annotation_text'\);/,  output, "Should Make Foo Annotation Text Column")
     assert_match(/data\.addColumn\('string', 'Bar_annotation_title'\);/, output, "Should Make Bar Annotation Title Column")
-    assert_match(/data\.addColumn\('string', 'Bar_annotation_text'\);/,  output, "Should Make Bar Annotation Text Column")                                  
+    assert_match(/data\.addColumn\('string', 'Bar_annotation_text'\);/,  output, "Should Make Bar Annotation Text Column")
+    
+    assert_match(/data\.setValue\(1, 2, \"Step two\"\);/, output, "should put right value for bar" )
+    assert_match(/data\.setValue\(1, 3, \"put your junk in the box\"\);/, output, "should put right value for bar" )
+    
+    assert_match(/data\.setValue\(0, 5, \"Step one\"\);/, output, "should put right value for foo")
+    assert_match(/data\.setValue\(0, 6, \"cut a hole in the box\"\);/, output, "should put right value for foo")    
+
+    assert_match(/data\.setValue\(3, 5, \"Step three\"\);/, output, "should put right value for foo")
   end
   
 end
