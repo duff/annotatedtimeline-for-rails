@@ -43,23 +43,71 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
   end
   
   def test_options_passed
-    output = annotated_timeline({Time.now =>{:foo=>7, :bar=>9}, 1.days.ago=>{:foo=>6, :bar=>10}, 2.days.ago=>{:foo=>5, :bar=>4}}, 300, 200, 'graph',
-                                {:displayExactValues  =>  true, 
-                                  :min                =>  5, 
-                                  :scaleType          =>  'maximize',
-                                  :colors             => ['orange', '#AAAAAA'],
-                                  :zoomStartTime      => 4.days.ago})
-    
+    output = annotated_timeline({Date.today =>{:foo=>7, :bar=>9}, 
+                                1.days.ago.to_date=>{:foo=>6, :bar=>10}, 
+                                2.days.ago.to_date=>{:foo=>5, :bar=>4}   }, 
+                                'graph',
+                                {:annotations               => {:foo=>{1.days.ago.to_date=>["asdf"]}},
+                                  :displayExactValues       => true, 
+                                  :allowHtml                => true,
+                                  :allValuesSuffix          => " euros",                              
+                                  :annotationsWidth         => 35,
+                                  :displayAnnotationsFilter => true,
+                                  :displayZoomButtos        => false,
+                                  :legendPosition           => "newRow",
+                                  :scaleColumns             => [1,0],                                
+                                  :scaleType                => "maximize",
+                                  :zoomEndTime              => Time.now,
+                                  :min                      => 5, 
+                                  :colors                   => ['orange', '#AAAAAA'],
+                                  :zoomStartTime            => 4.days.ago                   })
     
     assert_match(/displayExactValues: true/, output, "should pass exact values option")
+    assert_match(/allowHtml: true/, output, "should pass allow html option")
+    assert_match(/allValuesSuffix: " euros"/, output, "should pass suffix option")
+    assert_match(/annotationsWidth: 35/, output, "should pass annotations width")
+    assert_match(/displayAnnotationsFilter: true/, output, "should pass annotations filter option")
+    assert_match(/displayZoomButtos: false/, output, "should pass zoom buttons option")
+    assert_match(/legendPosition: "newRow"/, output, "should pass legendPosition")
+    assert_match(/scaleColumns: \[1, 0\]/, output, "should pass scaleColumns array")
+    assert_match(/scaleType: "maximize"/, output, "should pass scaleType option")               
+    
+    end_date_string = "zoomEndTime: new Date(#{Time.now.year}, #{Time.now.month-1}, #{Time.now.day})"
+    assert_match(end_date_string, output, "should pass zoom end option")
+
     assert_match(/min: 5/, output, "should pass min option")
-    assert_match(/scaleType: maximize/, output, "should pass scale type options")
+    assert_match(/scaleType: \"maximize\"/, output, "should pass scale type options")
     assert_match(/colors: \[\"orange\", \"#AAAAAA\"\]/, output, "should pass colors")
     
-    date_string = "zoomStartTime: new Date(#{4.days.ago.year}, #{4.days.ago.month-1}, #{4.days.ago.day})"
-    assert_match(date_string, output, "should pass zoom option")
-  
-    assert_match("<div id=\"graph\" style=\"width: 300px\; height: 200px\;\"></div>", output)
+    start_date_string = "zoomStartTime: new Date(#{4.days.ago.year}, #{4.days.ago.month-1}, #{4.days.ago.day})"
+    assert_match(start_date_string, output, "should pass zoom option")
+  end
+ 
+  def test_new_google_option_works
+    output = annotated_timeline({Date.today =>{:foo=>7, :bar=>9}, 
+                                1.days.ago.to_date=>{:foo=>6, :bar=>10}, 
+                                2.days.ago.to_date=>{:foo=>5, :bar=>4}   }, 
+                                'graph',
+                                 {:new_string_option  => "cake", 
+                                  :new_num_option    => 7,
+                                  :new_bool_option   => true,
+                                  :new_array_option  => [2,2],
+                                  :new_date_option   => Date.today,
+                                  :new_time_option   => Time.now})
+                                          
+    assert_match(/new_string_option: \"cake\"/, output, "should pass new string option")
+    assert_match(/new_num_option: 7/, output, "should pass new number option")                              
+    assert_match(/new_bool_option: true/, output, "should pass new bool option")
+    assert_match(/new_array_option: \[2, 2\]/, output, "should pass new array option")    
+
+    today_date_string = "new_date_option: new Date(#{Time.now.year}, #{Time.now.month-1}, #{Time.now.day})"
+    assert_match(today_date_string, output, "should pass new date option")
+    assert_match(today_date_string, output, "should pass new time option")                                 
   end
   
+  def test_annotations_inserted
+    
+  end
+  
+
 end
