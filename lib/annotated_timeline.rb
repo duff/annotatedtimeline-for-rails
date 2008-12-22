@@ -26,7 +26,8 @@ module AnnotatedTimeline
     #this version will automatically create a div inline for you. 
     #note that if it is in the middle of the page, the javascript will try to execute before the page load completes
   def inline_annotated_timeline(daily_counts_by_type, width = 750, height = 300, div_id_to_create = 'graph', options = {})
-    html = annotated_timeline(daily_counts_by_type, div_id_to_create, options)
+    html = "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>"
+    html += annotated_timeline(daily_counts_by_type, div_id_to_create, options)
     html + "<div id=\"#{div_id_to_create}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"    
   end
 
@@ -38,7 +39,7 @@ module AnnotatedTimeline
     google_options = format_options_for_javascript(options)
     data_args = google_options.any? ? "data, {#{google_options.join(", ")}}" : "data"
     
-    html = "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script><script type=\"text/javascript\">
+    html = "<script type=\"text/javascript\">
     google.load(\"visualization\", \"1\", {packages:[\"annotatedtimeline\"]});
     google.setOnLoadCallback(drawChart);
     function drawChart(){
