@@ -13,7 +13,7 @@ In your controller:
 	2.day.ago.to_date => { :foo=>345, :bar=>200 }	
 }
 
-Note that using Time objects *may* work if you don't use annotations, however this plugin is only spec'd for Date objects.
+Note that using Time objects *may* work if you don't use annotations, however this plugin is only spec'd for Date objects, and you use Time objects and try to display annotations the graph probably won't render.
 
 In the view:
 
