@@ -76,7 +76,7 @@ private
     if (options[:annotations] && options[:annotations].any?)
       valid_options[:displayAnnotations] = true
     end
-    valid_options.reject!{|k,v| k == :annotations}
+    valid_options.reject!{|k,v| k == :annotations || v == nil}
     
     ruby_hash_to_js_hash valid_options 
   end
@@ -99,12 +99,7 @@ private
 		    html+="data.addColumn('string', '#{type.titleize}_annotation_text');\n"
 		    categories << "#{type}_annotation_text".to_sym
 		    
-		    p "Type:"
-		    p type
-		    
 		    options[:annotations][type.to_sym].each do |date, array|
-          p "2ibgj;lkgj;lsadghkl;asdg;ahgl"
-          p date.inspect
 	        daily_counts_by_type[date]["#{type}_annotation_title".to_sym] = "\"#{array[0]}\""
 	        daily_counts_by_type[date]["#{type}_annotation_text".to_sym] = "\"#{array[1]}\"" if array[1]
 		    end
