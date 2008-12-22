@@ -73,7 +73,9 @@ private
     # a hash containing annotations is passed into the ruby options hash, keyed as :annotations. this hash
     # doesn't get sent to the javascript function - javascript takes the annotations as data points. the js
     # function does, however, require the boolean :displayAnnotations
-    options[:displayAnnotations] = (options[:annotations] && options[:annotations].any?)
+    if (options[:annotations] && options[:annotations].any?)
+      valid_options[:displayAnnotations] = true
+    end
     valid_options.reject!{|k,v| k == :annotations}
     
     ruby_hash_to_js_hash valid_options 
