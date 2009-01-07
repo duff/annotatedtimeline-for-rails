@@ -3,8 +3,6 @@ AnnotatedTimeline
 
 AnnotatedTimeline is a Rails plugin that wraps up the for the Annotated Timeline widget from the Google Visualization API (http://code.google.com/apis/visualization/documentation/gallery/annotatedtimeline.html)
 
-Last Update: 17 Dec 2008
-
 === Usage: 
 
 In your controller:

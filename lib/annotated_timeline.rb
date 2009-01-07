@@ -27,8 +27,8 @@ module AnnotatedTimeline
     #note that if it is in the middle of the page, the javascript will try to execute before the page load completes
   def inline_annotated_timeline(daily_counts_by_type, width = 750, height = 300, div_id_to_create = 'graph', options = {})
     html = "<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>"
-    html += annotated_timeline(daily_counts_by_type, div_id_to_create, options)
-    html + "<div id=\"#{div_id_to_create}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"    
+    html << annotated_timeline(daily_counts_by_type, div_id_to_create, options)
+    html << "<div id=\"#{div_id_to_create}\" style=\"width: #{width}px\; height: #{height}px\;\"></div>"    
   end
 
   #you must create a div on your page and pass in the div id
@@ -88,16 +88,16 @@ private
     html = ""
     
     #set up columns and assign them each an index
-    html += "data.addColumn('date', 'Date'); \n"  
+    html << "data.addColumn('date', 'Date'); \n"  
     types( daily_counts_by_type ).each do |type|
-  		html+="data.addColumn('number', '#{type.titleize}');\n"
+  		html<<"data.addColumn('number', '#{type.titleize}');\n"
   		categories << type.to_sym
   		
   		if options[:annotations] && options[:annotations].keys.include?(type.to_sym)
-  		  html+="data.addColumn('string', '#{type.titleize}_annotation_title');\n"
+  		  html<<"data.addColumn('string', '#{type.titleize}_annotation_title');\n"
 		    categories << "#{type}_annotation_title".to_sym
 		    
-		    html+="data.addColumn('string', '#{type.titleize}_annotation_text');\n"
+		    html<<"data.addColumn('string', '#{type.titleize}_annotation_text');\n"
 		    categories << "#{type}_annotation_text".to_sym
 		    
 		    options[:annotations][type.to_sym].each do |date, array|
@@ -108,9 +108,9 @@ private
   	end    
     
     #The script expects a constant telling it how many rows we're going to add
-    html+="data.addRows(#{daily_counts_by_type.size});\n"
+    html<<"data.addRows(#{daily_counts_by_type.size});\n"
     
-    html+=add_data_points(daily_counts_by_type, categories)
+    html<<add_data_points(daily_counts_by_type, categories)
     html	
   end
 
@@ -129,12 +129,12 @@ private
     #sort by date
     daily_counts_by_type.sort.each_with_index do |obj, index|
       date, type_and_count = obj
-      html+="data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"
+      html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"
     
       #now, on a particular date, go through columns 
       categories.each_with_index do |category, idx2|
         if type_and_count[category] 
-          html+="data.setValue(#{index}, #{idx2+1}, #{type_and_count[category]});\n"
+          html<<"data.setValue(#{index}, #{idx2+1}, #{type_and_count[category]});\n"
         end
       end      
     end
