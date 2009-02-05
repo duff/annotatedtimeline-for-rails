@@ -121,7 +121,7 @@ private
   #  ['type1', 'type2', 'type3']
   # We can't just take the keys of the first item because not every date has every category
   def types( daily_counts_by_type )
-    daily_counts_by_type.values.inject(&:merge).stringify_keys.keys.sort
+    daily_counts_by_type.values.inject({}){|a,b|a.merge(b)}.stringify_keys.keys.sort
   end
   
   def add_data_points(daily_counts_by_type, categories)
