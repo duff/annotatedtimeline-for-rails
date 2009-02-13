@@ -33,7 +33,7 @@ module AnnotatedTimeline
 
   #you must create a div on your page and pass in the div id
   def annotated_timeline(daily_counts_by_type, div_id = 'graph', options = {})
-
+    @time_zone = options[:timeZone] || "UTC"
     google_graph_html = google_graph_data(daily_counts_by_type, options)
 
     google_options = format_options_for_javascript(options)
@@ -53,8 +53,13 @@ module AnnotatedTimeline
 
 private
 
-  def ruby_time_to_js_time(time)
+  def ruby_time_to_js_date(time)
     "new Date(#{time.year}, #{time.month-1}, #{time.day})"
+  end
+
+  def ruby_time_to_js_time(time)
+    time = time.in_time_zone(@time_zone)
+    "new Date(#{time.year}, #{time.month-1}, #{time.day}, #{time.hour}, #{time.min})"
   end
 
   def ruby_hash_to_js_hash(hash)
@@ -83,12 +88,18 @@ private
   end
   
   def google_graph_data(daily_counts_by_type, options)
+    sorted_keys = daily_counts_by_type.keys.sort
+    by_day = (sorted_keys[1] - sorted_keys[0]) > 2.hours
     categories = []
     num = 0
     html = ""
     
     #set up columns and assign them each an index
-    html << "data.addColumn('date', 'Date'); \n"  
+    if by_day
+      html << "data.addColumn('date', 'Date'); \n"  
+    else
+      html << "data.addColumn('datetime', 'Date'); \n"  
+    end
     types( daily_counts_by_type ).each do |type|
   		html<<"data.addColumn('number', '#{type.titleize}');\n"
   		categories << type.to_sym
@@ -110,7 +121,7 @@ private
     #The script expects a constant telling it how many rows we're going to add
     html<<"data.addRows(#{daily_counts_by_type.size});\n"
     
-    html<<add_data_points(daily_counts_by_type, categories)
+    html<<add_data_points(daily_counts_by_type, categories, by_day)
     html	
   end
 
@@ -124,12 +135,16 @@ private
     daily_counts_by_type.values.inject({}){|a,b|a.merge(b)}.stringify_keys.keys.sort
   end
   
-  def add_data_points(daily_counts_by_type, categories)
+  def add_data_points(daily_counts_by_type, categories, by_day)
     html = ""
     #sort by date
-    daily_counts_by_type.sort.each_with_index do |obj, index|
+    daily_counts_by_type.sort{|a,b| a[0]<=>b[0]}.each_with_index do |obj, index|
       date, type_and_count = obj
-      html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"
+      if(by_day)
+        html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_date(date)});\n"
+      else
+        html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"
+      end
     
       #now, on a particular date, go through columns 
       categories.each_with_index do |category, idx2|
