@@ -88,8 +88,14 @@ private
   end
   
   def google_graph_data(daily_counts_by_type, options)
-    sorted_keys = daily_counts_by_type.keys.sort
-    by_day = (sorted_keys[1] - sorted_keys[0]) > 2.hours
+    by_day = true
+    
+    # do we have enough data to determine if we have hourly data?
+    if(daily_counts_by_type.length > 1)
+      sorted_keys = daily_counts_by_type.keys.sort
+      by_day = (sorted_keys[1] - sorted_keys[0]) > 2.hours
+    end
+  
     categories = []
     num = 0
     html = ""
