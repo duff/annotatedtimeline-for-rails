@@ -33,7 +33,7 @@ module AnnotatedTimeline
 
   #you must create a div on your page and pass in the div id
   def annotated_timeline(daily_counts_by_type, div_id = 'graph', options = {})
-    @time_zone = options[:timeZone] || "UTC"
+    @time_zone = options.delete(:timeZone) || "UTC"
     google_graph_html = google_graph_data(daily_counts_by_type, options)
 
     google_options = format_options_for_javascript(options)
