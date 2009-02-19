@@ -1,4 +1,3 @@
-
 ## Sample generated Javascript
 
 # <script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -19,7 +18,8 @@
 # data.setValue(1, 2, 45);
 # data.setValue(1, 3, 14);
 
-
+require "rubygems"
+require 'active_support'
 
 module AnnotatedTimeline 
 
@@ -33,10 +33,11 @@ module AnnotatedTimeline
 
   #you must create a div on your page and pass in the div id
   def annotated_timeline(daily_counts_by_type, div_id = 'graph', options = {})
-    @time_zone = options.delete(:timeZone) || "UTC"
-    google_graph_html = google_graph_data(daily_counts_by_type, options)
+    @time_zone  = options.delete(:timeZone) || "UTC"
+    daily_graph = is_daily?(daily_counts_by_type)
+    google_graph_html = google_graph_data(daily_counts_by_type, daily_graph, options)
 
-    google_options = format_options_for_javascript(options)
+    google_options = format_options_for_javascript(options, daily_graph)
     data_args = google_options.any? ? "data, {#{google_options.join(", ")}}" : "data"
     
     html = "<script type=\"text/javascript\">
@@ -52,12 +53,12 @@ module AnnotatedTimeline
   end
 
 private
-
-  def ruby_time_to_js_date(time)
-    "new Date(#{time.year}, #{time.month-1}, #{time.day})"
+  def ruby_time_to_js_date(date)
+    "new Date(#{date.year}, #{date.month-1}, #{date.day})"
   end
 
   def ruby_time_to_js_time(time)
+    time = time.to_time if !time.is_a?(Time)
     time = time.in_time_zone(@time_zone)
     "new Date(#{time.year}, #{time.month-1}, #{time.day}, #{time.hour}, #{time.min})"
   end
@@ -66,12 +67,16 @@ private
     hash.map{|key,val| "#{key}: #{val}"}
   end
   
-  def format_options_for_javascript(options)
+  def clean_keys(hash)
+    
+  end
+  
+  def format_options_for_javascript(options, daily_graph=true)
    valid_options = {}
    options.each do |k,v|
      valid_options[k] = case v
        when String, Array    then v.inspect   #this turns 'red' into '\"red\"' for strings and %w[red blue] into [\"red\", \"blue\"] for arrays 
-       when Date,Time        then ruby_time_to_js_time(v) 
+       when Date,Time        then (daily_graph) ? ruby_time_to_js_date(v) : ruby_time_to_js_time(v)
        else v       #leave bools and numbers as they are         
       end
    end 
@@ -87,21 +92,21 @@ private
     ruby_hash_to_js_hash valid_options 
   end
   
-  def google_graph_data(daily_counts_by_type, options)
-    by_day = true
+  def is_daily?(daily_counts_by_type={})
+    return true if (daily_counts_by_type.keys.first.is_a?(Date))
+    return true if (daily_counts_by_type.length < 2)
     
-    # do we have enough data to determine if we have hourly data?
-    if(daily_counts_by_type.length > 1)
-      sorted_keys = daily_counts_by_type.keys.sort
-      by_day = (sorted_keys[1] - sorted_keys[0]) > 2.hours
-    end
+    sorted_keys = daily_counts_by_type.keys.sort
+    (sorted_keys[1] - sorted_keys[0]) > 2.hours
+  end
   
+  def google_graph_data(daily_counts_by_type, daily_graph, options)
     categories = []
     num = 0
     html = ""
     
     #set up columns and assign them each an index
-    if by_day
+    if daily_graph
       html << "data.addColumn('date', 'Date'); \n"  
     else
       html << "data.addColumn('datetime', 'Date'); \n"  
@@ -127,7 +132,7 @@ private
     #The script expects a constant telling it how many rows we're going to add
     html<<"data.addRows(#{daily_counts_by_type.size});\n"
     
-    html<<add_data_points(daily_counts_by_type, categories, by_day)
+    html<<add_data_points(daily_counts_by_type, categories, daily_graph)
     html	
   end
 
@@ -141,12 +146,12 @@ private
     daily_counts_by_type.values.inject({}){|a,b|a.merge(b)}.stringify_keys.keys.sort
   end
   
-  def add_data_points(daily_counts_by_type, categories, by_day)
+  def add_data_points(daily_counts_by_type, categories, daily_graph)
     html = ""
     #sort by date
     daily_counts_by_type.sort{|a,b| a[0]<=>b[0]}.each_with_index do |obj, index|
       date, type_and_count = obj
-      if(by_day)
+      if(daily_graph)
         html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_date(date)});\n"
       else
         html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"

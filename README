@@ -8,11 +8,13 @@ AnnotatedTimeline is a Rails plugin that wraps up the for the Annotated Timeline
 In your controller:
 
 		@data = {
-			1.day.ago.to_date => { :foo=>123, :bar=>100 },
-			2.day.ago.to_date => { :foo=>345, :bar=>200 }	
+			1.day.ago => { :foo=>123, :bar=>100 },
+			2.day.ago => { :foo=>345, :bar=>200 }	
 		}
 
-	Note that using Time objects *may* work if you don't use annotations, however this plugin is only spec'd for Date objects, and you use Time objects and try to display annotations the graph probably won't render.
+The graph accepts either daily or hourly data. It will attempt to auto detect what type of data it is given by checking the time difference between the first two keys.
+
+Your keys should either be Dates or Times, but not a mix of both types.
 
 In the view:
 
@@ -35,6 +37,10 @@ Using inline_annotated_timeline inserts google javascript include and the graph 
 
 In your controller:
 
+		@data = {
+			1.day.ago.to_date => { :foo=>123, :bar=>100 },
+			2.day.ago.to_date => { :foo=>345, :bar=>200 }	
+		}
 		@annotations = {
 			:foo => { 1.day.ago.to_date => ["yesterday", "all my troubles seemed so far away"]}
 			:bar => { 1.day.ago.to_date => ["last tuesday"], 2.days.ago.to_date => ["last monday"]}
@@ -45,6 +51,10 @@ Sending arrays of strings with two elements will render the first element as the
 Now, in the view, the variable @annotations be passed in as option :annotations, with any other options in the hash. For example:
 
 		<%= inline_annotated_timeline @data, 500, 200, 'graph', {:annotations => @annotations, :displayExactValues => true} %>
+		
+If you use Time values for your keys, make sure that you use the exact same timestamps in the annotations array. You can avoid having to do this by using Date values.
+
+	
 
 
 === Options
