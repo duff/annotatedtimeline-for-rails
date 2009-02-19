@@ -67,10 +67,6 @@ private
     hash.map{|key,val| "#{key}: #{val}"}
   end
   
-  def clean_keys(hash)
-    
-  end
-  
   def format_options_for_javascript(options, daily_graph=true)
    valid_options = {}
    options.each do |k,v|
@@ -148,23 +144,23 @@ private
   
   def add_data_points(daily_counts_by_type, categories, daily_graph)
     html = ""
+    total_count = 0
     #sort by date
     daily_counts_by_type.sort{|a,b| a[0]<=>b[0]}.each_with_index do |obj, index|
       date, type_and_count = obj
-      if(daily_graph)
-        html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_date(date)});\n"
-      else
-        html<<"data.setValue(#{index}, 0, #{ruby_time_to_js_time(date)});\n"
-      end
+      js_date = (by_day) ? ruby_time_to_js_date(date) : ruby_time_to_js_time(date)
+      html<<"data.setValue(#{index}, 0, #{js_date});\n"
     
       #now, on a particular date, go through columns 
       categories.each_with_index do |category, idx2|
-        if type_and_count[category] 
-          html<<"data.setValue(#{index}, #{idx2+1}, #{type_and_count[category]});\n"
+        value = type_and_count[category]
+        if value
+          total_count = total_count + value
+          html<<"data.setValue(#{index}, #{idx2+1}, #{value});\n" if value
         end
       end      
     end
-  	html
+  	(total_count > 0) ? html : ""
   end
 
 end
