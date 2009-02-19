@@ -65,6 +65,8 @@ If you use Time values for your keys, make sure that you use the exact same time
 
 	:annotations - see above
 
+	:timeZone - (string) An optional timezone which is used when generating Javascript datetimes for hourly timelines. This is useful when your keys are in a timezone different from your UI timezone. For example, your data set can be indexed with UTC datetimes, but the timeline would display EST datetimes. Set this to a timezone string suitable for passing to ActiveSupport::CoreExtensions::Time::Zones#in_time_zone. This requires ActiveSupport 2.1.0 or higher.
+	
 	:annotationsWidth (number) - If specified, sets the percentage of the width of the display that the annotations column takes up. Defaults to 25, must be between 5 and 80. 
 
 	:colors (array of strings) - The colors to use to override the default google color scheme for the chart lines and labels. Each element is a string in a valid HTML color format. For example 'red' or '#00cc00'. 
@@ -89,7 +91,7 @@ If you use Time values for your keys, make sure that you use the exact same time
 
 	:zoomEndTime (date) -  If specified, sets the end date of the selected zoom range.
 
-You may notice that with the exception of annotations, all of these options are taken directly from the options in Google's API. Any new option implemented by the Google API that takes a string, boolean, number, or array as an argument should work implicitly as per examples above.
+You may notice that with the exception of annotations and timeZone, all of these options are taken directly from the options in Google's API. Any new option implemented by the Google API that takes a string, boolean, number, or array as an argument should work implicitly as per examples above.
 
 
 ===License:
