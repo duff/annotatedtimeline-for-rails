@@ -102,7 +102,7 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
                                 one_day_ago=>{:foo=>6, :bar=>10}, 
                                 2.days.ago=>{:foo=>5, :bar=>4}   }, 
                                 'graph',
-                                {:annotations               => {:foo=>{one_day_ago=>["asdf"]}},
+                                {:annotations               => {:foo=>{one_day_ago=>[["asdf"]]}},
                                   :displayExactValues       => true, 
                                   :allowHtml                => true,
                                   :allValuesSuffix          => " euros",                              
@@ -144,8 +144,8 @@ class AnnotatedTimelineTest < Test::Unit::TestCase
     three_days_ago = 3.days.ago
     one_days_ago   = 1.days.ago
     
-    annotation_hash = { :foo  =>  {four_days_ago=>["Step one", "cut a hole in the box"], one_days_ago=>["Step three"]},
-                        :bar  =>  {three_days_ago=>["Step two", "put your junk in the box"]} }
+    annotation_hash = { :foo  =>  {four_days_ago=>[["Step one", "cut a hole in the box"]], one_days_ago=>[["Step three"]]},
+                        :bar  =>  {three_days_ago=>[["Step two", "put your junk in the box"]]} }
     
     data_point_hash = {three_days_ago =>{:foo=>6, :bar=>2}, 
                         Time.now      =>{:foo=>7}, 

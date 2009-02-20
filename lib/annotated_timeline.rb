@@ -102,6 +102,8 @@ private
     categories = []
     num = 0
     html = ""
+    # Offset used to keep track of nested annotations.
+    index_offset = 0
     
     #set up columns and assign them each an index
     if daily_graph
@@ -110,28 +112,35 @@ private
       html << "data.addColumn('datetime', 'Date'); \n"  
     end
     types( daily_counts_by_type ).each do |type|
-  		html<<"data.addColumn('number', '#{type.titleize}');\n"
-  		categories << type.to_sym
-  		
-  		if options[:annotations] && options[:annotations].keys.include?(type.to_sym)
-  		  html<<"data.addColumn('string', '#{type.titleize}_annotation_title');\n"
-		    categories << "#{type}_annotation_title".to_sym
-		    
-		    html<<"data.addColumn('string', '#{type.titleize}_annotation_text');\n"
-		    categories << "#{type}_annotation_text".to_sym
-		    
-		    options[:annotations][type.to_sym].each do |date, array|
-	        daily_counts_by_type[date]["#{type}_annotation_title".to_sym] = "\"#{array[0]}\""
-	        daily_counts_by_type[date]["#{type}_annotation_text".to_sym] = "\"#{array[1]}\"" if array[1]
-		    end
-	    end    
-  	end    
+      html<<"data.addColumn('number', '#{type.titleize}');\n"
+      categories << type.to_sym
+
+      if options[:annotations] && options[:annotations].keys.include?(type.to_sym)
+        html<<"data.addColumn('string', '#{type.titleize}_annotation_title');\n"
+        categories << "#{type}_annotation_title".to_sym
+   
+        html<<"data.addColumn('string', '#{type.titleize}_annotation_text');\n"
+        categories << "#{type}_annotation_text".to_sym
+   
+        options[:annotations][type.to_sym].each do |date, array|
+          if not daily_counts_by_type.key?(date)
+            daily_counts_by_type[date] = {}
+          end
+
+          # We'll need additional date fields only if we have more than one annotation.
+          index_offset += (array.size-1)
+
+          # Preserve multiple annotations.
+          daily_counts_by_type[date]["#{type}_annotation_title".to_sym] = array
+        end
+      end    
+    end    
     
     #The script expects a constant telling it how many rows we're going to add
-    html<<"data.addRows(#{daily_counts_by_type.size});\n"
+    html<<"data.addRows(#{(daily_counts_by_type.size+index_offset)});\n"
     
     html<<add_data_points(daily_counts_by_type, categories, daily_graph)
-    html	
+    html
   end
 
   # Converts this:
@@ -147,22 +156,37 @@ private
   def add_data_points(daily_counts_by_type, categories, daily_graph)
     html = ""
     total_count = 0
+     # Offset used to keep track of nested annotations.
+    index_offset = 0
+    
     #sort by date
     daily_counts_by_type.sort{|a,b| a[0]<=>b[0]}.each_with_index do |obj, index|
       date, type_and_count = obj
       js_date = (daily_graph) ? ruby_time_to_js_date(date) : ruby_time_to_js_time(date)
-      html<<"data.setValue(#{index}, 0, #{js_date});\n"
+      html<<"data.setValue(#{(index+index_offset)}, 0, #{js_date});\n"
     
       #now, on a particular date, go through columns 
       categories.each_with_index do |category, idx2|
         value = type_and_count[category]
-        if value
+        if value && category.to_s.include?("_annotation_")
+          first_iteration = true
+          value.each do |v|
+            if (!first_iteration)
+              index_offset += 1
+              html<<"data.setValue(#{(index+index_offset)}, 0, #{js_date});\n"
+            end
+            html<<"data.setValue(#{(index+index_offset)}, #{idx2+1}, \"#{v[0]}\");\n" if v[0]
+            # XXX: We assume the _text index is right after the _title index.
+            html<<"data.setValue(#{(index+index_offset)}, #{idx2+2}, \"#{v[1]}\");\n" if v[1]
+            first_iteration = false
+          end
+        elsif value
           total_count = total_count + value.to_i
-          html<<"data.setValue(#{index}, #{idx2+1}, #{value});\n" if value
+          html<<"data.setValue(#{(index+index_offset)}, #{idx2+1}, #{value});\n" if value
         end
       end      
     end
-  	(total_count > 0) ? html : ""
+    (total_count > 0) ? html : ""
   end
 
 end
