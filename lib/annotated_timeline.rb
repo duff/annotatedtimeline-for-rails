@@ -150,7 +150,7 @@ private
     #sort by date
     daily_counts_by_type.sort{|a,b| a[0]<=>b[0]}.each_with_index do |obj, index|
       date, type_and_count = obj
-      js_date = (by_day) ? ruby_time_to_js_date(date) : ruby_time_to_js_time(date)
+      js_date = (daily_graph) ? ruby_time_to_js_date(date) : ruby_time_to_js_time(date)
       html<<"data.setValue(#{index}, 0, #{js_date});\n"
     
       #now, on a particular date, go through columns 
