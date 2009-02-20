@@ -157,7 +157,7 @@ private
       categories.each_with_index do |category, idx2|
         value = type_and_count[category]
         if value
-          total_count = total_count + value
+          total_count = total_count + value.to_i
           html<<"data.setValue(#{index}, #{idx2+1}, #{value});\n" if value
         end
       end      
